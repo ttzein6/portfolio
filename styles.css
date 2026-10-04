@@ -299,8 +299,8 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
 .hero__lede strong { color: var(--text); font-weight: 600; }
 
 /* Rain-in bio: hidden until main.js splits it into letters that fall into place.
-   If the script never runs, the text shows after 3s anyway. */
-.rain-pending .hero__lede { visibility: hidden; animation: lede-failsafe 0s 3s forwards; }
+   If the script never runs, the text shows after 4s anyway. */
+.rain-pending .hero__lede { visibility: hidden; animation: lede-failsafe 0s 4s forwards; }
 @keyframes lede-failsafe { to { visibility: visible; } }
 .hero__lede .rw { display: inline-block; white-space: nowrap; }
 .hero__lede .rc { display: inline-block; transform-origin: 50% 100%; }

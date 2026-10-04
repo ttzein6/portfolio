@@ -142,10 +142,10 @@
     };
     fork(W * (.62 + Math.random() * .25), 0, H * (.55 + Math.random() * .15), 46);
 
-    // Two flashes 190ms apart (well under three per second)
-    const flashAt = [260, 450];
-    const END = 2900;
-    const intensity = (t) => Math.min(1, t / 300) * Math.max(0, Math.min(1, (END - t) / 900));
+    // Two flashes 240ms apart (well under three per second)
+    const flashAt = [380, 620];
+    const END = 4000;
+    const intensity = (t) => Math.min(1, t / 450) * Math.max(0, Math.min(1, (END - t) / 1200));
     const flash = (t) => flashAt.reduce((m, f) => Math.max(m, t < f ? 0 : Math.exp(-(t - f) / 90)), 0);
 
     let t = 0;
@@ -212,8 +212,8 @@
     const n = chars.length;
     const fall = Math.max(window.innerHeight * .32, 220);
     chars.forEach((c, i) => {
-      c.style.setProperty('--delay', `${420 + (i / n) * 1100 + Math.random() * 450}ms`);
-      c.style.setProperty('--dur', `${650 + Math.random() * 300}ms`);
+      c.style.setProperty('--delay', `${600 + (i / n) * 1600 + Math.random() * 600}ms`);
+      c.style.setProperty('--dur', `${950 + Math.random() * 400}ms`);
       c.style.setProperty('--dy', `${-(fall + Math.random() * 160)}px`);
       c.style.setProperty('--dx', `${(Math.random() - .3) * 40}px`);
     });
@@ -235,7 +235,7 @@
       hero.classList.remove('is-thunder');
       void hero.offsetWidth;
       hero.classList.add('is-thunder');
-    }, 620 * timeDilation);
+    }, 850 * timeDilation);
   };
 
   // Rain once the bio scrolls into view (it can start below the fold on phones)
