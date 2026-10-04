@@ -3,10 +3,7 @@
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- Hero background: ?bg=grid|glow|none to compare, size label on the portrait ---------- */
-  const bg = new URLSearchParams(location.search).get('bg');
-  if (['grid', 'glow', 'none'].includes(bg)) document.documentElement.dataset.heroBg = bg;
-
+  /* ---------- Hero background: live size label on the portrait ---------- */
   const portrait = $('.hero__portrait');
   const portraitImg = $('img', portrait);
   new ResizeObserver(() => {

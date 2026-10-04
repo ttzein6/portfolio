@@ -159,8 +159,7 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
   align-items: end;
   padding-top: clamp(40px, 8vw, 96px);
 }
-/* Hero background: a layout grid like Flutter's debug view, plus a soft glow behind the portrait.
-   html[data-hero-bg] picks "grid", "glow" or "none"; with no attribute both show. */
+/* Hero background: a layout grid like Flutter's debug view, plus a soft glow behind the portrait. */
 .hero { position: relative; isolation: isolate; }
 .hero-bg {
   position: absolute; z-index: -1;
@@ -204,14 +203,6 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
   from { transform: translate3d(0, 0, 0) scale(1); }
   to { transform: translate3d(-6%, 8%, 0) scale(1.12); }
 }
-[data-hero-bg="glow"] .hero-bg__grid,
-[data-hero-bg="none"] .hero-bg__grid,
-[data-hero-bg="grid"] .hero-bg__glow,
-[data-hero-bg="none"] .hero-bg__glow,
-[data-hero-bg="glow"] .hero__portrait::before,
-[data-hero-bg="glow"] .hero__portrait::after,
-[data-hero-bg="none"] .hero__portrait::before,
-[data-hero-bg="none"] .hero__portrait::after { display: none; }
 
 /* Inspector-style bounds and size label around the portrait */
 .hero__portrait { position: relative; }
