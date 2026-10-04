@@ -52,7 +52,205 @@
     .then(() => {
       setTimeout(wave, 250);
       startLoop();
+      rain();
     });
+
+  /* ---------- Bio rain: letters fall into place behind a lightning storm ---------- */
+  const lede = $('.hero__lede');
+  const ledeHTML = lede.innerHTML;
+  const hero = $('.hero');
+  const storm = $('.hero-bg__storm');
+  const sctx = storm.getContext('2d');
+  let rainPending = false;
+  let rainRun = 0; // bumped on every run so a restarted rain cancels the old one
+  hero.addEventListener('animationend', (e) => {
+    if (e.animationName === 'thunder') hero.classList.remove('is-thunder');
+  });
+
+  // Wrap every letter in a span, and every word in a nowrap span so words never break mid-rain
+  const splitInto = (from, to) => {
+    from.childNodes.forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        node.textContent.split(/(\s+)/).forEach((part) => {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { to.append(' '); return; }
+          const word = document.createElement('span');
+          word.className = 'rw';
+          [...part].forEach((ch) => {
+            const c = document.createElement('span');
+            c.className = 'rc';
+            c.textContent = ch;
+            word.append(c);
+          });
+          to.append(word);
+        });
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const copy = node.cloneNode(false);
+        splitInto(node, copy);
+        to.append(copy);
+      }
+    });
+  };
+
+  const prepareRain = () => {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = ledeHTML;
+    const letters = document.createElement('span');
+    letters.setAttribute('aria-hidden', 'true');
+    splitInto(tmp, letters);
+    const text = document.createElement('span');
+    text.className = 'sr-only';
+    text.textContent = tmp.textContent.replace(/\s+/g, ' ').trim();
+    lede.replaceChildren(text, letters);
+    lede.classList.add('is-waiting');
+    lede.classList.remove('is-raining');
+    document.documentElement.classList.remove('rain-pending');
+    rainPending = true;
+  };
+
+  const drawStorm = (run) => {
+    const box = storm.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const W = box.width, H = box.height;
+    storm.width = Math.round(W * dpr);
+    storm.height = Math.round(H * dpr);
+    sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const dark = matchMedia('(prefers-color-scheme: dark)').matches
+      ? document.documentElement.dataset.theme !== 'light'
+      : document.documentElement.dataset.theme === 'dark';
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0175C2';
+
+    const drops = Array.from({ length: Math.round(W / 9) }, () => ({
+      x: Math.random() * W * 1.2,
+      y: Math.random() * -H,
+      len: 14 + Math.random() * 22,
+      v: 900 + Math.random() * 700,
+    }));
+
+    // A jagged bolt from the top right with one or two forks
+    const bolt = [];
+    const fork = (x, y, endY, spread) => {
+      const pts = [[x, y]];
+      while (y < endY) {
+        y += 18 + Math.random() * 26;
+        x += (Math.random() - .5) * spread;
+        pts.push([x, y]);
+        if (bolt.length < 3 && Math.random() < .12) fork(x, y, y + H * .2, spread * .8);
+      }
+      bolt.push(pts);
+    };
+    fork(W * (.62 + Math.random() * .25), 0, H * (.55 + Math.random() * .15), 46);
+
+    // Two flashes 190ms apart (well under three per second)
+    const flashAt = [260, 450];
+    const END = 2900;
+    const intensity = (t) => Math.min(1, t / 300) * Math.max(0, Math.min(1, (END - t) / 900));
+    const flash = (t) => flashAt.reduce((m, f) => Math.max(m, t < f ? 0 : Math.exp(-(t - f) / 90)), 0);
+
+    let t = 0;
+    let last = performance.now();
+    const frame = (now) => {
+      t += (now - last) / timeDilation;
+      last = now;
+      const k = intensity(t);
+      const fl = flash(t);
+      sctx.clearRect(0, 0, W, H);
+
+      // The sky darkens while it rains
+      sctx.fillStyle = dark ? `rgba(0, 0, 0, ${.35 * k})` : `rgba(12, 27, 51, ${.16 * k})`;
+      sctx.fillRect(0, 0, W, H);
+      if (fl > .01) {
+        sctx.fillStyle = `rgba(255, 255, 255, ${(dark ? .22 : .5) * fl})`;
+        sctx.fillRect(0, 0, W, H);
+      }
+
+      // Rain streaks, slanted a little by the wind
+      sctx.strokeStyle = accent;
+      sctx.globalAlpha = (dark ? .55 : .4) * k;
+      sctx.lineWidth = 1.2;
+      sctx.beginPath();
+      drops.forEach((d) => {
+        d.y += d.v * (1 / 60);
+        d.x -= d.v * (1 / 60) * .18;
+        if (d.y > H) { d.y = -d.len; d.x = Math.random() * W * 1.2; }
+        sctx.moveTo(d.x, d.y);
+        sctx.lineTo(d.x + d.len * .18, d.y - d.len);
+      });
+      sctx.stroke();
+      sctx.globalAlpha = 1;
+
+      // The bolt glows with the flash and leaves a short afterimage
+      const glow = Math.max(fl, t > flashAt[0] && t < flashAt[1] + 380 ? .25 : 0);
+      if (glow > .02) {
+        sctx.save();
+        sctx.lineJoin = 'round';
+        sctx.shadowColor = dark ? '#3FC4FF' : '#13B9FD';
+        sctx.shadowBlur = 24;
+        sctx.strokeStyle = `rgba(255, 255, 255, ${Math.min(1, glow * 1.4)})`;
+        bolt.forEach((pts, i) => {
+          sctx.lineWidth = i === bolt.length - 1 ? 3 : 1.5;
+          sctx.beginPath();
+          pts.forEach(([x, y], j) => (j ? sctx.lineTo(x, y) : sctx.moveTo(x, y)));
+          sctx.stroke();
+        });
+        sctx.restore();
+      }
+
+      if (run !== rainRun) return;
+      if (t < END) requestAnimationFrame(frame);
+      else sctx.clearRect(0, 0, W, H);
+    };
+    requestAnimationFrame(frame);
+  };
+
+  const startRain = () => {
+    if (!rainPending) return;
+    rainPending = false;
+    const run = rainRun;
+    const chars = $$('.rc', lede);
+    const n = chars.length;
+    const fall = Math.max(window.innerHeight * .32, 220);
+    chars.forEach((c, i) => {
+      c.style.setProperty('--delay', `${420 + (i / n) * 1100 + Math.random() * 450}ms`);
+      c.style.setProperty('--dur', `${650 + Math.random() * 300}ms`);
+      c.style.setProperty('--dy', `${-(fall + Math.random() * 160)}px`);
+      c.style.setProperty('--dx', `${(Math.random() - .3) * 40}px`);
+    });
+    // Put the plain text back once every letter has landed, so kerning and selection are normal again
+    let landed = 0;
+    const onEnd = (e) => {
+      if (run !== rainRun) { lede.removeEventListener('animationend', onEnd); return; }
+      if (!e.target.classList.contains('rc') || ++landed < n) return;
+      lede.removeEventListener('animationend', onEnd);
+      lede.innerHTML = ledeHTML;
+      lede.classList.remove('is-raining');
+    };
+    lede.addEventListener('animationend', onEnd);
+    lede.classList.remove('is-waiting');
+    lede.classList.add('is-raining');
+
+    drawStorm(run);
+    setTimeout(() => {
+      hero.classList.remove('is-thunder');
+      void hero.offsetWidth;
+      hero.classList.add('is-thunder');
+    }, 620 * timeDilation);
+  };
+
+  // Rain once the bio scrolls into view (it can start below the fold on phones)
+  const rain = () => {
+    if (reducedMotion) return;
+    rainRun++;
+    prepareRain();
+    if (!('IntersectionObserver' in window)) { startRain(); return; }
+    const io = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      io.disconnect();
+      startRain();
+    }, { threshold: .4 });
+    io.observe(lede);
+  };
 
   /* Loop the wave every few seconds, but only while the name is on screen,
      the tab is visible and the cursor isn't already playing with the letters */
@@ -90,6 +288,7 @@
     setTimeout(() => document.body.classList.remove('is-reloading'), 700);
     window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
     wave();
+    rain();
     const ms = Math.round(performance.now() - t0 + 120 + Math.random() * 120);
     showToast(`Performing hot reload...\nReloaded 1 of 1 libraries in ${ms}ms.`);
   };

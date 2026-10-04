@@ -184,6 +184,7 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
   -webkit-mask-image: radial-gradient(ellipse 55% 75% at 80% 35%, #000 10%, rgba(0, 0, 0, .35) 50%, transparent 78%);
           mask-image: radial-gradient(ellipse 55% 75% at 80% 35%, #000 10%, rgba(0, 0, 0, .35) 50%, transparent 78%);
 }
+.hero-bg__storm { position: absolute; inset: 0; width: 100%; height: 100%; }
 .hero-bg__glow {
   position: absolute; border-radius: 50%;
   width: clamp(320px, 42vw, 640px); aspect-ratio: 1;
@@ -296,6 +297,35 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
   color: var(--muted);
 }
 .hero__lede strong { color: var(--text); font-weight: 600; }
+
+/* Rain-in bio: hidden until main.js splits it into letters that fall into place.
+   If the script never runs, the text shows after 3s anyway. */
+.rain-pending .hero__lede { visibility: hidden; animation: lede-failsafe 0s 3s forwards; }
+@keyframes lede-failsafe { to { visibility: visible; } }
+.hero__lede .rw { display: inline-block; white-space: nowrap; }
+.hero__lede .rc { display: inline-block; transform-origin: 50% 100%; }
+.hero__lede.is-waiting .rc { opacity: 0; }
+.hero__lede.is-raining .rc {
+  animation: rain-drop var(--dur, 800ms) var(--delay, 0ms) both;
+}
+@keyframes rain-drop {
+  0%   { opacity: 0; transform: translate3d(var(--dx), var(--dy), 0) scale(.6, 1.8); animation-timing-function: cubic-bezier(.5, 0, 1, .6); }
+  45%  { opacity: .3; }
+  72%  { opacity: 1; }
+  80%  { transform: translate3d(0, 0, 0) scale(.85, 1.3); animation-timing-function: ease-out; }
+  90%  { transform: translate3d(0, 1px, 0) scale(1.2, .75); }
+  100% { opacity: 1; transform: none; }
+}
+/* Thunder: the hero text shudders a moment after the lightning */
+.hero.is-thunder .hero__text { animation: thunder 420ms ease-out; }
+@keyframes thunder {
+  0%, 100% { transform: none; }
+  15% { transform: translate(-3px, 1px); }
+  30% { transform: translate(3px, -1px); }
+  45% { transform: translate(-2px, 1px); }
+  60% { transform: translate(2px, 0); }
+  80% { transform: translate(-1px, 0); }
+}
 
 .hero__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
 
