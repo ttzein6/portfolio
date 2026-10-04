@@ -87,10 +87,18 @@ code { font-family: var(--font-code); font-size: .88em; }
 }
 .skip:focus { top: 12px; }
 
-/* ---------- Footer tools: debug paint toggle ---------- */
-.debug-toggle {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 7px 12px;
+/* ---------- For nerds: footer dev tools ---------- */
+.nerds { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.nerds__label {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-right: 4px;
+  font: 600 var(--step--1)/1 var(--font-body);
+  color: var(--text);
+}
+.nerds__label svg { color: var(--accent); }
+.nerd {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 10px 7px 12px;
   font: 500 var(--step--1)/1 var(--font-body);
   color: var(--muted);
   background: transparent;
@@ -99,14 +107,38 @@ code { font-family: var(--font-code); font-size: .88em; }
   cursor: pointer;
   transition: color .15s, border-color .15s, background .15s;
 }
-.debug-toggle:hover { color: var(--text); border-color: var(--muted); }
+.nerd:hover { color: var(--text); border-color: var(--muted); }
+.nerd[aria-pressed="true"] { color: var(--ink); background: var(--sky); border-color: var(--sky); }
+.nerd[aria-pressed="true"] kbd { border-color: rgba(12, 27, 51, .3); }
+.nerd.reload svg { color: var(--reload); }
+.nerd.reload:hover { border-color: var(--reload); }
 .debug-toggle__box {
   width: 12px; height: 12px;
   border: 1.5px dashed currentColor;
   border-radius: 2px;
 }
-.debug-toggle[aria-pressed="true"] {
-  color: var(--ink); background: var(--sky); border-color: var(--sky);
+
+/* Performance overlay (Flutter's showPerformanceOverlay) */
+.perf {
+  position: fixed; left: 16px; top: 16px; z-index: 45;
+  display: none;
+  margin: 0;
+  padding: 8px 10px 6px;
+  background: rgba(5, 12, 24, .88);
+  border: 1px solid #213450;
+  border-radius: 10px;
+  box-shadow: 0 16px 40px -16px rgba(0, 0, 0, .6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+.perf.is-on { display: block; }
+.perf__graph { display: block; width: 240px; height: 72px; }
+.perf__stats {
+  margin-top: 4px;
+  font: 500 .6875rem/1.3 var(--font-code);
+  color: #93A4BC;
+  white-space: pre;
 }
 
 /* ---------- Layout ---------- */
@@ -555,19 +587,6 @@ a.proj__link:hover { background: var(--accent); color: var(--accent-ink); border
   border-top: 1px solid var(--line);
   font-size: var(--step--1); color: var(--muted);
 }
-.foot__tools { display: flex; flex-wrap: wrap; gap: 8px; }
-.reload {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 8px 12px;
-  font: 500 var(--step--1)/1 var(--font-body);
-  color: var(--muted);
-  background: transparent;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  cursor: pointer;
-}
-.reload:hover { color: var(--text); border-color: var(--reload); }
-.reload svg { color: var(--reload); }
 kbd {
   font: 500 .75rem/1 var(--font-code);
   padding: 3px 6px;
@@ -691,6 +710,9 @@ body.is-reloading::after {
 /* ---------- Terminal (dev mode) ---------- */
 .term { display: none; }
 .is-dev main, .is-dev .foot, .is-dev .skip { display: none; }
+/* Lock the page so iOS can't scroll it behind the terminal when the keyboard opens */
+.is-dev, .is-dev body { overflow: hidden; overscroll-behavior: none; height: 100%; }
+.is-dev .mode { top: calc(var(--vv-top, 0px) + 16px); }
 .is-dev body { background: #050C18; }
 .is-dev .term {
   --t-bg: #050C18;
@@ -702,7 +724,9 @@ body.is-reloading::after {
   --t-amber: #FFB020;
   --t-red: #FF6B6B;
   display: flex;
-  position: fixed; inset: 0; z-index: 30;
+  position: fixed; left: 0; right: 0; z-index: 30;
+  top: var(--vv-top, 0px);
+  height: var(--vv-height, 100dvh);
   padding: clamp(12px, 3vw, 40px);
   padding-top: clamp(64px, 8vw, 80px);
   background: var(--t-bg);
@@ -776,6 +800,14 @@ body.is-reloading::after {
 .t-table { display: grid; grid-template-columns: max-content 1fr; gap: 2px 24px; }
 .t-table > * { white-space: pre-wrap; overflow-wrap: anywhere; }
 .t-help .t-cmd { justify-self: start; }
+@media (max-width: 560px) {
+  .is-dev .term { padding: 60px 8px 8px; font-size: .875rem; }
+  .term__window { border-radius: 12px; }
+  .term__bar { padding: 9px 12px; }
+  .term__screen { padding: 14px 12px 16px; }
+  .term__input { font-size: 16px; }
+  .is-dev .mode { top: calc(var(--vv-top, 0px) + 10px); right: 10px; }
+}
 @media (max-width: 560px) {
   .t-table { grid-template-columns: 1fr; gap: 0; }
   .t-table > :nth-child(odd) { margin-top: 8px; }

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
   <title>Tamer El Zein — Builder &amp; AI Lab Team Lead @ Futurate</title>
   <meta name="description" content="Tamer El Zein is a builder and AI Lab Team Lead at Futurate. Maker of Tadween and Visufit on the App Store, the Ma3ak home-services platform and an open-source Flutter animation package.">
   <meta name="theme-color" content="#EEF2F6" media="(prefers-color-scheme: light)">
@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Geist:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="styles.css?v=13">
+  <link rel="stylesheet" href="styles.css?v=16">
   <script>try { if (localStorage.getItem('mode') === 'dev') document.documentElement.classList.add('is-dev'); } catch (e) {}</script>
 
   <script type="application/ld+json">
@@ -403,20 +403,41 @@
 
   <footer class="foot">
     <p>Tamer El Zein, <span data-year>2026</span></p>
-    <div class="foot__tools">
-      <button class="debug-toggle" type="button" aria-pressed="false" title="Outline every box, like Flutter's debugPaintSizeEnabled. Shortcut: press p">
+    <div class="nerds" role="group" aria-labelledby="nerds-label">
+      <span class="nerds__label" id="nerds-label">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        For nerds
+      </span>
+      <button class="nerd debug-toggle" type="button" aria-pressed="false" title="Outline every box, like Flutter's debugPaintSizeEnabled">
         <span class="debug-toggle__box" aria-hidden="true"></span>Debug paint <kbd>p</kbd>
       </button>
-      <button class="reload" type="button" title="Shortcut: press r">
-        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor"/></svg>
+      <button class="nerd slow-toggle" type="button" aria-pressed="false" title="Run every animation 5x slower, like Flutter's timeDilation">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l2.5 2M10 2h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Slow motion <kbd>s</kbd>
+      </button>
+      <button class="nerd perf-toggle" type="button" aria-pressed="false" title="Show frame times and FPS, like Flutter's showPerformanceOverlay">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M3 20V10M9 20V4M15 20v-7M21 20V8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Performance <kbd>f</kbd>
+      </button>
+      <button class="nerd reload" type="button" title="Replay the name animation, like Flutter's hot reload">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor"/></svg>
         Hot reload <kbd>r</kbd>
+      </button>
+      <button class="nerd term-open" type="button" title="Browse this site in a terminal">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="m5 8 4 4-4 4M12 17h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Terminal <kbd>t</kbd>
       </button>
     </div>
   </footer>
 
   <div class="toast" role="status" aria-live="polite"></div>
 
-  <script src="main.js?v=6" defer></script>
-  <script src="terminal.js?v=2" defer></script>
+  <figure class="perf" aria-hidden="true">
+    <canvas class="perf__graph" width="240" height="72"></canvas>
+    <figcaption class="perf__stats"></figcaption>
+  </figure>
+
+  <script src="main.js?v=8" defer></script>
+  <script src="terminal.js?v=3" defer></script>
 </body>
 </html>

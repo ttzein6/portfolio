@@ -15,6 +15,8 @@
   const play = (el) => {
     if (reducedMotion || el.classList.contains(el.dataset.effect)) return;
     el.classList.add(el.dataset.effect);
+    // Apply Slow motion right away instead of waiting for the animationstart event
+    if (timeDilation !== 1) el.getAnimations().forEach((a) => { a.playbackRate = 1 / timeDilation; });
     el.addEventListener('animationend', () => el.classList.remove(el.dataset.effect), { once: true });
   };
 
@@ -26,10 +28,11 @@
   /* Wave: every letter jumps and flips / tilts / squashes in turn.
      Runs on page load and on every hot reload. */
   let waveTimers = [];
+  let timeDilation = 1; // raised by the Slow motion tool
   const wave = () => {
     if (reducedMotion) return;
     waveTimers.forEach(clearTimeout);
-    waveTimers = letters.map((el, i) => setTimeout(() => play(el), i * 90));
+    waveTimers = letters.map((el, i) => setTimeout(() => play(el), i * 90 * timeDilation));
   };
 
   // Start once the display font is in (at most 800ms) so letters don't swap typeface mid-jump
@@ -89,17 +92,99 @@
   document.addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey || isTyping(document.activeElement)) return;
     if (document.documentElement.classList.contains('is-dev')) return; // the terminal owns the keyboard
-    if (e.key === 'r') hotReload();
-    if (e.key === 'p') debugBtn.click();
+    const shortcuts = { r: hotReload, p: () => debugBtn.click(), s: () => slowBtn.click(), f: () => perfBtn.click(), t: () => termBtn.click() };
+    shortcuts[e.key]?.();
   });
 
-  /* ---------- Debug paint ---------- */
+  /* ---------- Debug paint (debugPaintSizeEnabled) ---------- */
   const debugBtn = $('.debug-toggle');
   debugBtn.addEventListener('click', () => {
     const on = document.documentElement.classList.toggle('debug-paint');
     debugBtn.setAttribute('aria-pressed', String(on));
-    showToast(on ? 'debugPaintSizeEnabled = true' : 'debugPaintSizeEnabled = false', 1600);
+    showToast(`debugPaintSizeEnabled = ${on}`, 1600);
   });
+
+  /* ---------- Slow motion (timeDilation) ---------- */
+  const SLOW = 5;
+  const slowBtn = $('.slow-toggle');
+  const dilate = (el) => el.getAnimations?.().forEach((a) => { a.playbackRate = 1 / timeDilation; });
+  // New animations and transitions start at normal speed, so slow each one as it begins
+  ['animationstart', 'transitionrun'].forEach((type) =>
+    document.addEventListener(type, (e) => { if (timeDilation !== 1) dilate(e.target); }, true));
+  slowBtn.addEventListener('click', () => {
+    timeDilation = timeDilation === 1 ? SLOW : 1;
+    const on = timeDilation !== 1;
+    document.getAnimations().forEach((a) => { a.playbackRate = 1 / timeDilation; });
+    slowBtn.setAttribute('aria-pressed', String(on));
+    showToast(`timeDilation = ${timeDilation.toFixed(1)}`, 1600);
+    if (on) wave();
+  });
+
+  /* ---------- Performance overlay (showPerformanceOverlay) ---------- */
+  const perfBtn = $('.perf-toggle');
+  const perf = $('.perf');
+  const canvas = $('.perf__graph');
+  const stats = $('.perf__stats');
+  const ctx = canvas.getContext('2d');
+  const FRAMES = 120;
+  const BUDGET = 1000 / 60;
+  const SCALE_MS = BUDGET * 3;
+  const frames = [];
+  let perfRaf = 0;
+  let lastFrame = 0;
+  let lastStats = 0;
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = 240 * dpr;
+  canvas.height = 72 * dpr;
+  ctx.scale(dpr, dpr);
+
+  const drawPerf = (now) => {
+    if (lastFrame) {
+      frames.push(now - lastFrame);
+      if (frames.length > FRAMES) frames.shift();
+    }
+    lastFrame = now;
+
+    ctx.clearRect(0, 0, 240, 72);
+    const barW = 240 / FRAMES;
+    frames.forEach((dt, i) => {
+      const h = Math.min(dt / SCALE_MS, 1) * 72;
+      ctx.fillStyle = dt <= BUDGET * 1.15 ? '#2BC48A' : dt <= BUDGET * 2 ? '#FFB020' : '#FF6B6B';
+      ctx.fillRect(i * barW, 72 - h, Math.max(barW - .5, 1), h);
+    });
+    // The 16.7ms line: frames above it missed 60fps
+    const budgetY = 72 - (BUDGET / SCALE_MS) * 72;
+    ctx.fillStyle = 'rgba(230, 237, 245, .55)';
+    ctx.fillRect(0, budgetY, 240, 1);
+
+    if (now - lastStats > 250 && frames.length) {
+      lastStats = now;
+      const avg = frames.reduce((a, b) => a + b, 0) / frames.length;
+      const worst = Math.max(...frames);
+      const janky = frames.filter((dt) => dt > BUDGET * 1.15).length;
+      stats.textContent = `${Math.round(1000 / avg)} fps   avg ${avg.toFixed(1)}ms   worst ${worst.toFixed(1)}ms\n${janky} of ${frames.length} frames over budget`;
+    }
+    perfRaf = requestAnimationFrame(drawPerf);
+  };
+
+  perfBtn.addEventListener('click', () => {
+    const on = !perf.classList.contains('is-on');
+    perf.classList.toggle('is-on', on);
+    perfBtn.setAttribute('aria-pressed', String(on));
+    if (on) {
+      frames.length = 0;
+      lastFrame = 0;
+      perfRaf = requestAnimationFrame(drawPerf);
+    } else {
+      cancelAnimationFrame(perfRaf); // no work at all while it's hidden
+    }
+    showToast(`showPerformanceOverlay = ${on}`, 1600);
+  });
+
+  /* ---------- Terminal shortcut ---------- */
+  const termBtn = $('.term-open');
+  termBtn.addEventListener('click', () => $('.mode__btn[data-mode="dev"]').click());
 
   /* ---------- Project filters ---------- */
   const chips = $$('.chip');

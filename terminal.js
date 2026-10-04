@@ -338,6 +338,27 @@
     }
   }
 
+  /* ---------- Phones: keep the terminal above the on-screen keyboard ----------
+     The keyboard overlays the page without resizing it, so size the terminal to the
+     visual viewport (the part you can actually see) and keep the prompt scrolled in. */
+  const vv = window.visualViewport;
+  const syncViewport = () => {
+    if (!vv) return;
+    html.style.setProperty('--vv-height', `${Math.round(vv.height)}px`);
+    html.style.setProperty('--vv-top', `${Math.round(vv.offsetTop)}px`);
+    if (html.classList.contains('is-dev')) scrollDown();
+  };
+  if (vv) {
+    vv.addEventListener('resize', syncViewport);
+    vv.addEventListener('scroll', syncViewport);
+    syncViewport();
+  }
+  // The keyboard animates in after focus; scroll again once it has settled
+  input.addEventListener('focus', () => {
+    scrollDown();
+    setTimeout(() => { syncViewport(); scrollDown(); }, 350);
+  });
+
   buttons.forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
   setMode(html.classList.contains('is-dev') ? 'dev' : 'preview', { save: false, focus: false });
 })();
