@@ -299,8 +299,8 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
 .hero__lede strong { color: var(--text); font-weight: 600; }
 
 /* Rain-in bio: hidden until main.js splits it into letters that fall into place.
-   If the script never runs, the text shows after 4s anyway. */
-.rain-pending .hero__lede { visibility: hidden; animation: lede-failsafe 0s 4s forwards; }
+   If the script never runs, the text shows after 3s anyway. */
+.rain-pending .hero__lede { visibility: hidden; animation: lede-failsafe 0s 3s forwards; }
 @keyframes lede-failsafe { to { visibility: visible; } }
 .hero__lede .rw { display: inline-block; white-space: nowrap; }
 .hero__lede .rc { display: inline-block; transform-origin: 50% 100%; }
@@ -316,15 +316,21 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
   90%  { transform: translate3d(0, 1px, 0) scale(1.2, .75); }
   100% { opacity: 1; transform: none; }
 }
-/* Thunder: the hero text shudders a moment after the lightning */
-.hero.is-thunder .hero__text { animation: thunder 420ms ease-out; }
+/* Thunder: the whole hero shakes with each strike */
+.hero.is-thunder .hero__text,
+.hero.is-thunder .hero__portrait { animation: thunder 640ms cubic-bezier(.36, .07, .19, .97); }
+.hero.is-thunder .hero__portrait { animation-delay: 30ms; }
 @keyframes thunder {
   0%, 100% { transform: none; }
-  15% { transform: translate(-3px, 1px); }
-  30% { transform: translate(3px, -1px); }
-  45% { transform: translate(-2px, 1px); }
-  60% { transform: translate(2px, 0); }
-  80% { transform: translate(-1px, 0); }
+  8%  { transform: translate(-9px, 3px) rotate(-.5deg); }
+  18% { transform: translate(8px, -4px) rotate(.5deg); }
+  28% { transform: translate(-7px, 2px) rotate(-.35deg); }
+  38% { transform: translate(6px, -2px) rotate(.3deg); }
+  50% { transform: translate(-6px, 3px) rotate(-.25deg); }
+  62% { transform: translate(4px, -1px); }
+  76% { transform: translate(-2px, 1px); }
+  88% { transform: translate(1px, 0); }
+}
 }
 
 .hero__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }

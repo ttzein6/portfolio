@@ -128,25 +128,29 @@
       v: 900 + Math.random() * 700,
     }));
 
-    // A jagged bolt from the top right with one or two forks
-    const bolt = [];
-    const fork = (x, y, endY, spread) => {
-      const pts = [[x, y]];
-      while (y < endY) {
-        y += 18 + Math.random() * 26;
-        x += (Math.random() - .5) * spread;
-        pts.push([x, y]);
-        if (bolt.length < 3 && Math.random() < .12) fork(x, y, y + H * .2, spread * .8);
-      }
-      bolt.push(pts);
+    // Jagged bolts with a few forks: one for each flash, striking at different spots
+    const makeBolt = (x0) => {
+      const bolt = [];
+      const fork = (x, y, endY, spread, main) => {
+        const pts = [[x, y]];
+        while (y < endY) {
+          y += 16 + Math.random() * 24;
+          x += (Math.random() - .5) * spread;
+          pts.push([x, y]);
+          if (bolt.length < 4 && Math.random() < .14) fork(x, y, y + H * (.15 + Math.random() * .15), spread * .8, false);
+        }
+        bolt.push({ pts, main });
+      };
+      fork(x0, 0, H * (.7 + Math.random() * .15), 52, true);
+      return bolt;
     };
-    fork(W * (.62 + Math.random() * .25), 0, H * (.55 + Math.random() * .15), 46);
+    const bolts = [makeBolt(W * (.6 + Math.random() * .12)), makeBolt(W * (.78 + Math.random() * .14))];
 
-    // Two flashes 240ms apart (well under three per second)
-    const flashAt = [380, 620];
-    const END = 4000;
-    const intensity = (t) => Math.min(1, t / 450) * Math.max(0, Math.min(1, (END - t) / 1200));
-    const flash = (t) => flashAt.reduce((m, f) => Math.max(m, t < f ? 0 : Math.exp(-(t - f) / 90)), 0);
+    // Two flashes 220ms apart (under three per second)
+    const flashAt = [260, 480];
+    const END = 3000;
+    const intensity = (t) => Math.min(1, t / 250) * Math.max(0, Math.min(1, (END - t) / 800));
+    const flash = (t) => flashAt.reduce((m, f) => Math.max(m, t < f ? 0 : Math.exp(-(t - f) / 110)), 0);
 
     let t = 0;
     let last = performance.now();
@@ -157,18 +161,18 @@
       const fl = flash(t);
       sctx.clearRect(0, 0, W, H);
 
-      // The sky darkens while it rains
-      sctx.fillStyle = dark ? `rgba(0, 0, 0, ${.35 * k})` : `rgba(12, 27, 51, ${.16 * k})`;
+      // The sky darkens while it rains, then lights up with each strike
+      sctx.fillStyle = dark ? `rgba(0, 0, 0, ${.45 * k})` : `rgba(12, 27, 51, ${.24 * k})`;
       sctx.fillRect(0, 0, W, H);
       if (fl > .01) {
-        sctx.fillStyle = `rgba(255, 255, 255, ${(dark ? .22 : .5) * fl})`;
+        sctx.fillStyle = `rgba(255, 255, 255, ${(dark ? .42 : .75) * fl})`;
         sctx.fillRect(0, 0, W, H);
       }
 
       // Rain streaks, slanted a little by the wind
       sctx.strokeStyle = accent;
-      sctx.globalAlpha = (dark ? .55 : .4) * k;
-      sctx.lineWidth = 1.2;
+      sctx.globalAlpha = (dark ? .6 : .45) * k;
+      sctx.lineWidth = 1.3;
       sctx.beginPath();
       drops.forEach((d) => {
         d.y += d.v * (1 / 60);
@@ -180,19 +184,26 @@
       sctx.stroke();
       sctx.globalAlpha = 1;
 
-      // The bolt glows with the flash and leaves a short afterimage
-      const glow = Math.max(fl, t > flashAt[0] && t < flashAt[1] + 380 ? .25 : 0);
+      // The latest bolt blazes with its flash and leaves an afterimage
+      const n = t >= flashAt[1] ? 1 : 0;
+      const since = t - flashAt[n];
+      const glow = since < 0 ? 0 : Math.max(Math.exp(-since / 140), since < 520 ? .3 : 0);
       if (glow > .02) {
         sctx.save();
         sctx.lineJoin = 'round';
+        sctx.lineCap = 'round';
         sctx.shadowColor = dark ? '#3FC4FF' : '#13B9FD';
-        sctx.shadowBlur = 24;
-        sctx.strokeStyle = `rgba(255, 255, 255, ${Math.min(1, glow * 1.4)})`;
-        bolt.forEach((pts, i) => {
-          sctx.lineWidth = i === bolt.length - 1 ? 3 : 1.5;
-          sctx.beginPath();
-          pts.forEach(([x, y], j) => (j ? sctx.lineTo(x, y) : sctx.moveTo(x, y)));
-          sctx.stroke();
+        bolts[n].forEach(({ pts, main }) => {
+          // Wide colored glow first, then a bright white core
+          [[main ? 14 : 6, `rgba(63, 196, 255, ${.35 * glow})`, 50], [main ? 4.5 : 2, `rgba(255, 255, 255, ${Math.min(1, glow * 1.5)})`, 22]]
+            .forEach(([w, color, blur]) => {
+              sctx.lineWidth = w;
+              sctx.strokeStyle = color;
+              sctx.shadowBlur = blur;
+              sctx.beginPath();
+              pts.forEach(([x, y], j) => (j ? sctx.lineTo(x, y) : sctx.moveTo(x, y)));
+              sctx.stroke();
+            });
         });
         sctx.restore();
       }
@@ -212,8 +223,8 @@
     const n = chars.length;
     const fall = Math.max(window.innerHeight * .32, 220);
     chars.forEach((c, i) => {
-      c.style.setProperty('--delay', `${600 + (i / n) * 1600 + Math.random() * 600}ms`);
-      c.style.setProperty('--dur', `${950 + Math.random() * 400}ms`);
+      c.style.setProperty('--delay', `${380 + (i / n) * 1250 + Math.random() * 450}ms`);
+      c.style.setProperty('--dur', `${700 + Math.random() * 250}ms`);
       c.style.setProperty('--dy', `${-(fall + Math.random() * 160)}px`);
       c.style.setProperty('--dx', `${(Math.random() - .3) * 40}px`);
     });
@@ -235,7 +246,7 @@
       hero.classList.remove('is-thunder');
       void hero.offsetWidth;
       hero.classList.add('is-thunder');
-    }, 850 * timeDilation);
+    }, 300 * timeDilation);
   };
 
   // Rain once the bio scrolls into view (it can start below the fold on phones)
