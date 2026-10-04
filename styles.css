@@ -271,7 +271,7 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
   overflow: hidden;
   isolation: isolate;
   display: flex; flex-direction: column;
-  min-height: 300px;
+  min-height: 240px;
   padding: clamp(24px, 3vw, 36px);
   border-radius: var(--radius-lg);
   text-decoration: none;
@@ -286,6 +286,7 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
 .ship--animatez { background: var(--dart); color: #FFFFFF; }
 .ship--nutri    { background: #FFE6B3; }
 
+.ship > .ship__where { align-self: flex-start; }
 .ship__top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .ship__icon {
   width: 64px; height: 64px;
@@ -296,7 +297,7 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
 }
 .ship__icon--round { border-radius: 50%; }
 .ship:hover .ship__icon { transform: rotate(-8deg) scale(1.06); }
-.ship--tadween .ship__icon { width: 88px; height: 88px; }
+.ship--tadween .ship__icon { width: 72px; height: 72px; }
 .ship .ship__where--new { background: #F5ECDA; color: #225648; }
 .ship__ar {
   font: 500 .45em/1 "Geeza Pro", "Noto Sans Arabic", system-ui, sans-serif;
@@ -314,12 +315,12 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
 }
 .ship__name {
   margin-top: auto;
-  padding-top: 48px;
-  font: 800 clamp(2.25rem, 5vw, 3.75rem)/.95 var(--font-display);
+  padding-top: 32px;
+  font: 800 clamp(2rem, 4vw, 3rem)/.95 var(--font-display);
   letter-spacing: -.035em;
 }
-.ship--tadween .ship__name { font-size: clamp(2.75rem, 7vw, 5.5rem); }
-.ship--tadween .ship__desc { max-width: 40ch; font-size: var(--step-1); line-height: 1.5; }
+.ship--tadween .ship__name { font-size: clamp(2.5rem, 5vw, 4rem); }
+.ship--tadween .ship__desc { max-width: 46ch; }
 .ship__desc { margin-top: 12px; max-width: 44ch; opacity: .78; }
 .ship__cta {
   margin-top: 20px;
