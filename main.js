@@ -3,6 +3,17 @@
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* ---------- Hero background: ?bg=grid|glow|none to compare, size label on the portrait ---------- */
+  const bg = new URLSearchParams(location.search).get('bg');
+  if (['grid', 'glow', 'none'].includes(bg)) document.documentElement.dataset.heroBg = bg;
+
+  const portrait = $('.hero__portrait');
+  const portraitImg = $('img', portrait);
+  new ResizeObserver(() => {
+    const w = Math.round(portraitImg.getBoundingClientRect().width);
+    portrait.dataset.size = `${w} \u00d7 ${w}`;
+  }).observe(portraitImg);
+
   /* ---------- Hero letters: AnimateZWidget's flip / rotate / scale ---------- */
   const name = $('.hero__name');
   const letters = $$('.w', name);

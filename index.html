@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Geist:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="styles.css?v=16">
+  <link rel="stylesheet" href="styles.css?v=17">
   <script>try { if (localStorage.getItem('mode') === 'dev') document.documentElement.classList.add('is-dev'); } catch (e) {}</script>
 
   <script type="application/ld+json">
@@ -81,6 +81,11 @@
   <main id="main">
     <!-- HERO -->
     <section class="hero" id="top" aria-labelledby="hero-name">
+      <div class="hero-bg" aria-hidden="true">
+        <div class="hero-bg__grid"></div>
+        <div class="hero-bg__glow hero-bg__glow--a"></div>
+        <div class="hero-bg__glow hero-bg__glow--b"></div>
+      </div>
       <div class="hero__text">
         <p class="hero__hello">Hi, I'm</p>
         <h1 class="hero__name" id="hero-name" aria-label="Tamer El Zein">
@@ -437,7 +442,7 @@
     <figcaption class="perf__stats"></figcaption>
   </figure>
 
-  <script src="main.js?v=8" defer></script>
+  <script src="main.js?v=9" defer></script>
   <script src="terminal.js?v=3" defer></script>
 </body>
 </html>

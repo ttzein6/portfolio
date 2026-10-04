@@ -159,6 +159,79 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
   align-items: end;
   padding-top: clamp(40px, 8vw, 96px);
 }
+/* Hero background: a layout grid like Flutter's debug view, plus a soft glow behind the portrait.
+   html[data-hero-bg] picks "grid", "glow" or "none"; with no attribute both show. */
+.hero { position: relative; isolation: isolate; }
+.hero-bg {
+  position: absolute; z-index: -1;
+  top: calc(-1 * clamp(40px, 8vw, 96px) - 48px); bottom: -64px;
+  left: 50%; width: 100vw; transform: translateX(-50%);
+  overflow: hidden; pointer-events: none;
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 160px), transparent);
+          mask-image: linear-gradient(#000 calc(100% - 160px), transparent);
+}
+.hero-bg__grid {
+  --major: color-mix(in srgb, var(--accent) 16%, transparent);
+  --minor: color-mix(in srgb, var(--accent) 7%, transparent);
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--major) 1px, transparent 1px),
+    linear-gradient(var(--minor) 1px, transparent 1px),
+    linear-gradient(90deg, var(--minor) 1px, transparent 1px);
+  background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px;
+  background-position: center top;
+  /* Strongest top right and around the portrait, gone under the paragraph */
+  -webkit-mask-image: radial-gradient(ellipse 55% 75% at 80% 35%, #000 10%, rgba(0, 0, 0, .35) 50%, transparent 78%);
+          mask-image: radial-gradient(ellipse 55% 75% at 80% 35%, #000 10%, rgba(0, 0, 0, .35) 50%, transparent 78%);
+}
+.hero-bg__glow {
+  position: absolute; border-radius: 50%;
+  width: clamp(320px, 42vw, 640px); aspect-ratio: 1;
+  animation: hero-drift 22s ease-in-out infinite alternate;
+}
+.hero-bg__glow--a {
+  top: -12%; right: -8%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--sky) 30%, transparent), transparent 65%);
+}
+.hero-bg__glow--b {
+  bottom: 0; right: 14%;
+  width: clamp(260px, 30vw, 480px);
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 24%, transparent), transparent 65%);
+  animation-duration: 28s; animation-direction: alternate-reverse;
+}
+@keyframes hero-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-6%, 8%, 0) scale(1.12); }
+}
+[data-hero-bg="glow"] .hero-bg__grid,
+[data-hero-bg="none"] .hero-bg__grid,
+[data-hero-bg="grid"] .hero-bg__glow,
+[data-hero-bg="none"] .hero-bg__glow,
+[data-hero-bg="glow"] .hero__portrait::before,
+[data-hero-bg="glow"] .hero__portrait::after,
+[data-hero-bg="none"] .hero__portrait::before,
+[data-hero-bg="none"] .hero__portrait::after { display: none; }
+
+/* Inspector-style bounds and size label around the portrait */
+.hero__portrait { position: relative; }
+.hero__portrait::before {
+  content: ""; position: absolute; z-index: -1;
+  top: -10px; left: -10px; width: calc(100% + 20px); aspect-ratio: 1;
+  border: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: calc(23% + 4px);
+}
+.hero__portrait::after {
+  content: attr(data-size);
+  position: absolute; top: -34px; left: -10px;
+  font: 500 12px/1 var(--font-code);
+  color: var(--accent);
+  padding: 4px 6px; border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+  font-variant-numeric: tabular-nums;
+}
+.hero__portrait:not([data-size])::after { display: none; }
+
 .hero__hello {
   font: 500 var(--step-1)/1 var(--font-display);
   color: var(--muted);
@@ -648,6 +721,11 @@ body.is-reloading::after {
   .hero__name { font-size: min(24vw, 8rem); }
   .hero__portrait { grid-row: 1; justify-self: start; width: 112px; }
   .hero__portrait figcaption { display: none; }
+  .hero__portrait::after { display: none; }
+  .hero-bg__grid {
+    -webkit-mask-image: radial-gradient(ellipse 90% 45% at 70% 10%, #000 10%, transparent 75%);
+            mask-image: radial-gradient(ellipse 90% 45% at 70% 10%, #000 10%, transparent 75%);
+  }
   .hero__hint { display: none; }
   .job { grid-template-columns: 1fr; }
   .job__when { padding-top: 0; }
