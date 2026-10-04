@@ -319,7 +319,42 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
   font: 800 clamp(2rem, 4vw, 3rem)/.95 var(--font-display);
   letter-spacing: -.035em;
 }
-.ship--tadween .ship__name { font-size: clamp(2.5rem, 5vw, 4rem); }
+.ship--tadween .ship__name { font-size: clamp(2.25rem, 4vw, 3.25rem); }
+.ship--tadween { min-height: 0; }
+
+/* Compact cards: icon beside the name instead of above it */
+.ship:not(.ship--tadween) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "icon where"
+    "icon name"
+    "desc desc"
+    "cta  cta";
+  align-content: start;
+  column-gap: 16px;
+  min-height: 0;
+  padding: 24px 26px;
+}
+.ship:not(.ship--tadween) .ship__top { display: contents; }
+.ship:not(.ship--tadween) .ship__icon {
+  grid-area: icon; align-self: center;
+  width: 56px; height: 56px; margin: 0;
+}
+.ship:not(.ship--tadween) .ship__where { grid-area: where; justify-self: start; align-self: end; }
+.ship:not(.ship--tadween) .ship__name {
+  grid-area: name;
+  margin-top: 6px; padding-top: 0;
+  font-size: clamp(1.625rem, 2.6vw, 2.125rem);
+}
+.ship:not(.ship--tadween) .ship__desc { grid-area: desc; margin-top: 14px; max-width: none; font-size: .9375rem; }
+.ship:not(.ship--tadween) .ship__cta { grid-area: cta; justify-self: start; margin-top: 12px; }
+.ship:not(.ship--tadween) .ship__art { width: 120px; top: -18px; right: -18px; opacity: .14; }
+.ship__icon--glyph {
+  display: grid; place-items: center;
+  background: #015A96;
+  fill: #FFFFFF;
+}
 .ship--tadween .ship__desc { max-width: 46ch; }
 .ship__desc { margin-top: 12px; max-width: 44ch; opacity: .78; }
 .ship__cta {
