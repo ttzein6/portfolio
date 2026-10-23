@@ -28,7 +28,7 @@ const doc = await PDFDocument.load(pdf, { updateMetadata: false });
 doc.setTitle('Tamer El Zein - CV', { showInWindowTitleBar: true });
 doc.setAuthor('Tamer El Zein');
 doc.setSubject('Curriculum vitae of Tamer El Zein, AI Lab Team Lead and Software Engineer');
-doc.setKeywords(['Tamer El Zein', 'CV', 'Resume', 'AI Lab Team Lead', 'Software Engineer', 'Flutter', 'AI Agents', 'Google ADK']);
+doc.setKeywords(['Tamer El Zein', 'CV', 'Resume', 'AI Lab Team Lead', 'Software Engineer', 'Flutter', 'AI Agents', 'Multi-agent systems', 'Google ADK', 'Pydantic']);
 doc.setLanguage('en');
 doc.setCreator('cv/cv.html');
 doc.setCreationDate(new Date());
