@@ -1,4 +1,4 @@
-/* Graphics Atlas card icon: the site's own mark, ported from graphics-art.ttzein6.workers.dev/js/mark.js.
+/* Graphics Atlas card icon: the site's own mark, ported from graphics.tamerelzein.com/js/mark.js.
    A pen plotter draws landmark shapes from computer graphics history in turn, holds each one while it moves,
    then lifts it off and starts the next. Every shape is a set of polylines in -1..1, so the pen can trace any of them. */
 (() => {
