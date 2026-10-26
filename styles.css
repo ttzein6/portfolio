@@ -412,7 +412,8 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
 }
 .ship:hover { transform: translateY(-4px); }
 /* Card colors come from each app's own icon */
-.ship--tadween  { grid-row: span 2; background: #225648; color: #F5ECDA; }
+.ship--tadween  { grid-row: span 3; background: #225648; color: #F5ECDA; }
+.ship--atlas    { background: #1F2B33; color: #EBE7DC; }
 .ship--ma3ak    { background: #164B7E; color: #FFFFFF; }
 .ship--visufit  { background: linear-gradient(160deg, #BFDDF0, #F2CDB0); }
 .ship--animatez { background: var(--dart); color: #FFFFFF; }
@@ -493,6 +494,7 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
   background: #015A96;
   fill: #FFFFFF;
 }
+.ship__icon--atlas { background: #172027; }
 .ship--tadween .ship__desc { max-width: 46ch; }
 .ship__desc { margin-top: 12px; max-width: 44ch; opacity: .78; }
 .ship__cta {
