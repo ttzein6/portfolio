@@ -582,17 +582,6 @@ a.proj__link:hover { background: var(--accent); color: var(--accent-ink); border
 }
 .tools ul { display: grid; gap: 12px; }
 .tools li { display: flex; align-items: center; gap: 12px; font-weight: 500; }
-.tools__mono {
-  display: inline-grid; place-items: center;
-  flex: none;
-  width: 28px; height: 28px;
-  font: 800 .6875rem/1 var(--font-display);
-  letter-spacing: -.01em;
-  color: var(--accent);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
-  box-shadow: 0 0 0 1px var(--line);
-}
 .tools img {
   width: 28px; height: 28px;
   object-fit: contain;
