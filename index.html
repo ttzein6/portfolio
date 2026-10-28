@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Geist:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="styles.css?v=25">
+  <link rel="stylesheet" href="styles.css?v=26">
   <script>try { if (localStorage.getItem('mode') === 'dev') document.documentElement.classList.add('is-dev'); } catch (e) {}
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('rain-pending');</script>
 
@@ -233,7 +233,10 @@
         <a class="ship ship--nutri" href="https://t.me/NutriPulseBot" target="_blank" rel="noopener">
           <div class="ship__top">
             <img class="ship__icon ship__icon--round" src="assets/apps/nutripulse.webp" width="72" height="72" alt="" loading="lazy">
-            <span class="ship__where">Telegram</span>
+            <span class="ship__tags">
+              <span class="ship__where">Telegram</span>
+              <span class="ship__where ship__where--off">Currently unavailable</span>
+            </span>
           </div>
           <h3 class="ship__name">NutriPulse</h3>
           <p class="ship__desc">An AI nutrition and fitness coach in a chat. Send a meal photo for an analysis, ask for diet advice or get a workout plan.</p>

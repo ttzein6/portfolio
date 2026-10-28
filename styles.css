@@ -439,6 +439,10 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
 .ship:hover .ship__icon { transform: rotate(-8deg) scale(1.06); }
 .ship--featured .ship__icon { width: 72px; height: 72px; }
 .ship .ship__where--new { background: #D0AB62; color: #1F2B33; }
+.ship__tags { display: flex; flex-wrap: wrap; gap: 6px; }
+/* A project that's offline for now: a muted pill with a hollow status dot */
+.ship .ship__where--off { display: inline-flex; align-items: center; gap: 6px; background: rgba(138, 58, 22, .12); color: #8A3A16; }
+.ship__where--off::before { content: ""; width: 6px; height: 6px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px currentColor; }
 .ship__ar {
   font: 500 .45em/1 "Geeza Pro", "Noto Sans Arabic", system-ui, sans-serif;
   letter-spacing: 0;
@@ -482,6 +486,7 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
   width: 56px; height: 56px; margin: 0;
 }
 .ship:not(.ship--featured) .ship__where { grid-area: where; justify-self: start; align-self: end; }
+.ship:not(.ship--featured) .ship__tags { grid-area: where; align-self: end; }
 .ship:not(.ship--featured) .ship__name {
   grid-area: name;
   margin-top: 6px; padding-top: 0;
