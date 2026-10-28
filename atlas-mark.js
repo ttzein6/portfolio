@@ -2,9 +2,8 @@
    A pen plotter draws landmark shapes from computer graphics history in turn, holds each one while it moves,
    then lifts it off and starts the next. Every shape is a set of polylines in -1..1, so the pen can trace any of them. */
 (() => {
-  const canvas = document.querySelector('[data-atlas-mark]');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const canvases = document.querySelectorAll('[data-atlas-mark]');
+  if (!canvases.length) return;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const INK = '#D0AB62'; // the Atlas's brass
 
@@ -30,11 +29,13 @@
   const SHAPES = [
     {
       // Lorenz attractor, after Edward Lorenz, 1963
+      name: 'Lorenz attractor, Edward Lorenz, 1963',
       weight: .55,
       lines(t) { return [{ pts: lorenz.map((p) => project(rotate(p, t * .35, .25))) }]; }
     },
     {
       // Hypercube, after A. Michael Noll, Bell Labs, 1960s
+      name: 'Hypercube, A. Michael Noll, 1960s',
       weight: .8,
       lines(t) {
         const a = t * .5, b = t * .31, v = [];
@@ -52,6 +53,7 @@
     },
     {
       // Schotter, after Georg Nees, 1968
+      name: 'Schotter, Georg Nees, 1968',
       weight: .7,
       lines(t) {
         const rand = seeded(7), lines = [], cols = 7, rows = 10, s = 1.5 / rows, breathe = .85 + .15 * Math.sin(t * .8);
@@ -66,6 +68,7 @@
     },
     {
       // Oscillon, after Ben Laposky, 1952
+      name: 'Oscillon, Ben Laposky, 1952',
       weight: .5,
       lines(t) {
         const pts = [], ph = t * .25;
@@ -78,6 +81,7 @@
     },
     {
       // (Des)Ordres, after Vera Molnár, 1974
+      name: '(Des)Ordres, Vera Molnár, 1974',
       weight: .6,
       lines(t) {
         const rand = seeded(11), lines = [], n = 5, cell = 1.7 / n, wob = .5 + .5 * Math.sin(t * .6);
@@ -96,74 +100,99 @@
     }
   ];
 
-  const DRAW = 2.4, HOLD = 3.4, LIFT = 1, CYCLE = DRAW + HOLD + LIFT;
-  let size = 0, raf = 0, onScreen = false;
-  const start = performance.now();
+  // The stage on the featured card fills a wide canvas with a fine pen, numbers and names the piece it's on,
+  // and runs a progress bar that follows the pen. The icon is square and scales its pen to its size.
+  function mount(canvas) {
+    const ctx = canvas.getContext('2d');
+    const plate = canvas.hasAttribute('data-atlas-plate');
+    const card = canvas.closest('.ship');
+    const caption = plate && card.querySelector('[data-atlas-caption]');
+    const index = plate && card.querySelector('[data-atlas-index]');
+    const progress = plate && card.querySelector('[data-atlas-progress]');
+    let W = 0, H = 0, size = 0, raf = 0, onScreen = false, shown = -1;
 
-  function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2), w = canvas.clientWidth;
-    if (!w) return;
-    size = w;
-    canvas.width = canvas.height = Math.round(w * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  // Draws the part of the polylines between fractions a and b of their total length, as one path, with the pen at the moving end.
-  function trace(lines, a, b, penAt, weight = 1) {
-    const half = size / 2, scale = half * .82, X = (p) => half + p[0] * scale, Y = (p) => half - p[1] * scale;
-    let total = 0;
-    for (const l of lines) for (let i = 1; i < l.pts.length; i++) total += Math.hypot(l.pts[i][0] - l.pts[i - 1][0], l.pts[i][1] - l.pts[i - 1][1]);
-    const from = a * total, to = b * total;
-    let at = 0, pen = null;
-    ctx.beginPath();
-    for (const l of lines) {
-      let open = false;
-      for (let i = 1; i < l.pts.length; i++) {
-        const p = l.pts[i - 1], q = l.pts[i], len = Math.hypot(q[0] - p[0], q[1] - p[1]);
-        const s0 = Math.max(from, at), s1 = Math.min(to, at + len);
-        if (s1 > s0) {
-          const lerp = (d) => { const k = len ? (d - at) / len : 0; return [p[0] + (q[0] - p[0]) * k, p[1] + (q[1] - p[1]) * k]; };
-          const u = lerp(s0), v = lerp(s1);
-          if (!open) { ctx.moveTo(X(u), Y(u)); open = true; if (penAt === 'start' && !pen) pen = u; }
-          ctx.lineTo(X(v), Y(v));
-          if (penAt === 'end') pen = v;
-        } else open = false;
-        at += len;
-      }
+    function label(n) {
+      if (!plate || shown === n) return;
+      shown = n;
+      const i = n % SHAPES.length;
+      if (caption) caption.textContent = SHAPES[i].name;
+      if (index) index.textContent = String(i + 1).padStart(2, '0');
     }
-    ctx.lineCap = ctx.lineJoin = 'round';
-    ctx.strokeStyle = INK;
-    ctx.lineWidth = Math.max(.75, size / 70 * weight);
-    ctx.stroke();
-    if (pen) { ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(X(pen), Y(pen), size / 28, 0, Math.PI * 2); ctx.fill(); }
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = canvas.clientWidth; H = canvas.clientHeight;
+      if (!W || !H) return;
+      size = Math.min(W, H);
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    // Draws the part of the polylines between fractions a and b of their total length, as one path, with the pen at the moving end.
+    function trace(lines, a, b, penAt, weight = 1) {
+      const scale = size / 2 * (plate ? .64 : .82), X = (p) => W / 2 + p[0] * scale, Y = (p) => H / 2 - p[1] * scale;
+      let total = 0;
+      for (const l of lines) for (let i = 1; i < l.pts.length; i++) total += Math.hypot(l.pts[i][0] - l.pts[i - 1][0], l.pts[i][1] - l.pts[i - 1][1]);
+      const from = a * total, to = b * total;
+      let at = 0, pen = null;
+      ctx.beginPath();
+      for (const l of lines) {
+        let open = false;
+        for (let i = 1; i < l.pts.length; i++) {
+          const p = l.pts[i - 1], q = l.pts[i], len = Math.hypot(q[0] - p[0], q[1] - p[1]);
+          const s0 = Math.max(from, at), s1 = Math.min(to, at + len);
+          if (s1 > s0) {
+            const lerp = (d) => { const k = len ? (d - at) / len : 0; return [p[0] + (q[0] - p[0]) * k, p[1] + (q[1] - p[1]) * k]; };
+            const u = lerp(s0), v = lerp(s1);
+            if (!open) { ctx.moveTo(X(u), Y(u)); open = true; if (penAt === 'start' && !pen) pen = u; }
+            ctx.lineTo(X(v), Y(v));
+            if (penAt === 'end') pen = v;
+          } else open = false;
+          at += len;
+        }
+      }
+      ctx.lineCap = ctx.lineJoin = 'round';
+      ctx.strokeStyle = INK;
+      ctx.lineWidth = plate ? 1.4 * weight + .3 : Math.max(.75, size / 70 * weight);
+      ctx.stroke();
+      if (pen) { ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(X(pen), Y(pen), plate ? 3.5 : size / 28, 0, Math.PI * 2); ctx.fill(); }
+    }
+
+    function frame(now) {
+      raf = onScreen ? requestAnimationFrame(frame) : 0;
+      if (!size) return;
+      const t = (now - start) / 1000, n = Math.floor(t / CYCLE), local = t - n * CYCLE, shape = SHAPES[n % SHAPES.length];
+      const ease = (x) => x < .5 ? 2 * x * x : 1 - (-2 * x + 2) ** 2 / 2;
+      ctx.clearRect(0, 0, W, H);
+      label(n);
+      const lines = shape.lines(t);
+      let a = 0, b = 1;
+      if (local < DRAW) trace(lines, 0, b = ease(local / DRAW), 'end', shape.weight);
+      else if (local < DRAW + HOLD) trace(lines, 0, 1, null, shape.weight);
+      else trace(lines, a = ease((local - DRAW - HOLD) / LIFT), 1, 'start', shape.weight);
+      if (progress) progress.style.clipPath = `inset(0 ${(1 - b) * 100}% 0 ${a * 100}%)`;
+    }
+
+    // With reduced motion the mark is a single still drawing: the Lorenz attractor, held.
+    function still() {
+      if (!size) return;
+      ctx.clearRect(0, 0, W, H);
+      trace(SHAPES[0].lines(1.2), 0, 1, null, SHAPES[0].weight);
+      label(0);
+    }
+
+    new ResizeObserver(() => { resize(); if (reduced) still(); }).observe(canvas);
+    resize();
+    if (reduced) { still(); return; }
+
+    // Only plot while the card is on screen
+    new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      if (onScreen && !raf) raf = requestAnimationFrame(frame);
+    }).observe(canvas);
   }
 
-  function frame(now) {
-    raf = onScreen ? requestAnimationFrame(frame) : 0;
-    if (!size) return;
-    const t = (now - start) / 1000, n = Math.floor(t / CYCLE), local = t - n * CYCLE, shape = SHAPES[n % SHAPES.length];
-    const ease = (x) => x < .5 ? 2 * x * x : 1 - (-2 * x + 2) ** 2 / 2;
-    ctx.clearRect(0, 0, size, size);
-    const lines = shape.lines(t);
-    if (local < DRAW) trace(lines, 0, ease(local / DRAW), 'end', shape.weight);
-    else if (local < DRAW + HOLD) trace(lines, 0, 1, null, shape.weight);
-    else trace(lines, ease((local - DRAW - HOLD) / LIFT), 1, 'start', shape.weight);
-  }
-
-  // With reduced motion the mark is a single still drawing: the Lorenz attractor, held.
-  function still() {
-    if (!size) return;
-    ctx.clearRect(0, 0, size, size);
-    trace(SHAPES[0].lines(1.2), 0, 1, null, SHAPES[0].weight);
-  }
-
-  new ResizeObserver(() => { resize(); if (reduced) still(); }).observe(canvas);
-  resize();
-  if (reduced) { still(); return; }
-
-  // Only plot while the card is on screen
-  new IntersectionObserver(([entry]) => {
-    onScreen = entry.isIntersecting;
-    if (onScreen && !raf) raf = requestAnimationFrame(frame);
-  }).observe(canvas);
+  const DRAW = 2.4, HOLD = 3.4, LIFT = 1, CYCLE = DRAW + HOLD + LIFT;
+  const start = performance.now();
+  canvases.forEach(mount);
 })();

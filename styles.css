@@ -415,7 +415,8 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
 }
 .ship:hover { transform: translateY(-4px); }
 /* Card colors come from each app's own icon */
-.ship--tadween  { grid-row: span 3; background: #225648; color: #F5ECDA; }
+.ship--featured { grid-row: span 3; }
+.ship--tadween  { background: #225648; color: #F5ECDA; }
 .ship--atlas    { background: #1F2B33; color: #EBE7DC; }
 .ship--ma3ak    { background: #164B7E; color: #FFFFFF; }
 .ship--visufit  { background: linear-gradient(160deg, #BFDDF0, #F2CDB0); }
@@ -436,8 +437,8 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
 }
 .ship__icon--round { border-radius: 50%; }
 .ship:hover .ship__icon { transform: rotate(-8deg) scale(1.06); }
-.ship--tadween .ship__icon { width: 72px; height: 72px; }
-.ship .ship__where--new { background: #F5ECDA; color: #225648; }
+.ship--featured .ship__icon { width: 72px; height: 72px; }
+.ship .ship__where--new { background: #D0AB62; color: #1F2B33; }
 .ship__ar {
   font: 500 .45em/1 "Geeza Pro", "Noto Sans Arabic", system-ui, sans-serif;
   letter-spacing: 0;
@@ -458,11 +459,11 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
   font: 800 clamp(2rem, 4vw, 3rem)/.95 var(--font-display);
   letter-spacing: -.035em;
 }
-.ship--tadween .ship__name { font-size: clamp(2.25rem, 4vw, 3.25rem); }
-.ship--tadween { min-height: 0; }
+.ship--featured .ship__name { font-size: clamp(2.25rem, 4vw, 3.25rem); }
+.ship--featured { min-height: 0; }
 
 /* Compact cards: icon beside the name instead of above it */
-.ship:not(.ship--tadween) {
+.ship:not(.ship--featured) {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   grid-template-areas:
@@ -475,20 +476,20 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
   min-height: 0;
   padding: 24px 26px;
 }
-.ship:not(.ship--tadween) .ship__top { display: contents; }
-.ship:not(.ship--tadween) .ship__icon {
+.ship:not(.ship--featured) .ship__top { display: contents; }
+.ship:not(.ship--featured) .ship__icon {
   grid-area: icon; align-self: center;
   width: 56px; height: 56px; margin: 0;
 }
-.ship:not(.ship--tadween) .ship__where { grid-area: where; justify-self: start; align-self: end; }
-.ship:not(.ship--tadween) .ship__name {
+.ship:not(.ship--featured) .ship__where { grid-area: where; justify-self: start; align-self: end; }
+.ship:not(.ship--featured) .ship__name {
   grid-area: name;
   margin-top: 6px; padding-top: 0;
   font-size: clamp(1.625rem, 2.6vw, 2.125rem);
 }
-.ship:not(.ship--tadween) .ship__desc { grid-area: desc; margin-top: 14px; max-width: none; font-size: .9375rem; }
-.ship:not(.ship--tadween) .ship__cta { grid-area: cta; justify-self: start; margin-top: 12px; }
-.ship:not(.ship--tadween) .ship__art { width: 120px; top: -18px; right: -18px; opacity: .14; }
+.ship:not(.ship--featured) .ship__desc { grid-area: desc; margin-top: 14px; max-width: none; font-size: .9375rem; }
+.ship:not(.ship--featured) .ship__cta { grid-area: cta; justify-self: start; margin-top: 12px; }
+.ship:not(.ship--featured) .ship__art { width: 120px; top: -18px; right: -18px; opacity: .14; }
 .ship.ship--n8n .ship__desc { max-width: 60ch; }
 .ship.ship--n8n .ship__art { width: clamp(180px, 28vw, 340px); top: 50%; right: 24px; transform: translateY(-50%); color: #EA4B71; opacity: .45; }
 .ship.ship--n8n:hover .ship__art { transform: translateY(-50%) scale(1.04); opacity: .7; }
@@ -497,8 +498,35 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
   background: #015A96;
   fill: #FFFFFF;
 }
-.ship__icon--atlas { background: #172027; }
-.ship--tadween .ship__desc { max-width: 46ch; }
+/* Graphics Atlas, featured: the top of the card is the plotter's bed, bleeding to the card's edges */
+.ship--atlas.ship--featured { --pad: clamp(24px, 3vw, 36px); padding: 0; }
+.ship--atlas.ship--featured > :not(.atlas-stage) { margin-inline: var(--pad); }
+.ship--atlas.ship--featured > .ship__cta { margin-bottom: var(--pad); align-self: flex-start; }
+.atlas-stage {
+  position: relative;
+  flex: 1;
+  min-height: 320px;
+  background: #172027 radial-gradient(circle, rgba(208, 171, 98, .14) 1px, transparent 1.5px) center / 22px 22px;
+  border-bottom: 1px solid rgba(235, 231, 220, .08);
+}
+.atlas-stage__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.atlas-stage .ship__top { position: relative; padding: var(--pad) var(--pad) 0; }
+.atlas-stage__label {
+  position: absolute; left: var(--pad); right: var(--pad); bottom: 18px;
+  display: flex; align-items: baseline; gap: 12px;
+  font: 500 .75rem/1.3 var(--font-code);
+  letter-spacing: .02em;
+  color: #D0AB62;
+}
+.atlas-stage__index { opacity: .6; white-space: nowrap; }
+.atlas-stage__progress {
+  position: absolute; left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: #D0AB62;
+  clip-path: inset(0 100% 0 0);
+}
+.ship--atlas.ship--featured .ship__name { padding-top: 28px; }
+.ship--featured .ship__desc { max-width: 46ch; }
 .ship__desc { margin-top: 12px; max-width: 44ch; opacity: .78; }
 .ship__cta {
   margin-top: 20px;
@@ -740,7 +768,7 @@ body.is-reloading::after {
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
   .shipped { grid-template-columns: 1fr; }
-  .ship--tadween { grid-row: auto; }
+  .ship--featured { grid-row: auto; }
   .ship.ship--n8n .ship__art { width: 150px; top: -10px; right: -16px; transform: none; opacity: .3; }
   .ship.ship--n8n:hover .ship__art { transform: scale(1.04); }
   .contact__grid { grid-template-columns: 1fr; }

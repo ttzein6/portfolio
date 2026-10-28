@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Geist:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="styles.css?v=22">
+  <link rel="stylesheet" href="styles.css?v=25">
   <script>try { if (localStorage.getItem('mode') === 'dev') document.documentElement.classList.add('is-dev'); } catch (e) {}
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('rain-pending');</script>
 
@@ -171,25 +171,32 @@
       <h2 class="section__title" id="projects-title">Shipped and live</h2>
 
       <div class="shipped">
-        <a class="ship ship--tadween" href="https://tadween.tamerelzein.com" target="_blank" rel="noopener">
-          <div class="ship__top">
-            <img class="ship__icon" src="assets/apps/tadween.webp" width="72" height="72" alt="" loading="lazy">
-            <span class="ship__where">App Store</span>
-            <span class="ship__where ship__where--new">Latest</span>
-          </div>
-          <h3 class="ship__name">Tadween <span class="ship__ar" lang="ar">تدوين</span></h3>
-          <p class="ship__desc">A calm, private expense tracker for iPhone. Snap a receipt, type a sentence or say it in your own dialect, and it becomes an organized transaction. It's all read on your device: no account, no servers, no tracking.</p>
-          <span class="ship__cta">See how Tadween works</span>
-        </a>
-
-        <a class="ship ship--atlas" href="https://graphics.tamerelzein.com/" target="_blank" rel="noopener">
-          <div class="ship__top">
-            <canvas class="ship__icon ship__icon--atlas" width="72" height="72" data-atlas-mark aria-hidden="true"></canvas>
-            <span class="ship__where">Web, in progress</span>
+        <a class="ship ship--atlas ship--featured" href="https://graphics.tamerelzein.com/" target="_blank" rel="noopener">
+          <div class="atlas-stage">
+            <canvas class="atlas-stage__canvas" data-atlas-mark data-atlas-plate aria-hidden="true"></canvas>
+            <div class="ship__top">
+              <span class="ship__where">Web, in progress</span>
+              <span class="ship__where ship__where--new">Latest</span>
+            </div>
+            <p class="atlas-stage__label" aria-hidden="true">
+              <span class="atlas-stage__index"><span data-atlas-index>01</span> / 05</span>
+              <span data-atlas-caption>Lorenz attractor, Edward Lorenz, 1963</span>
+            </p>
+            <span class="atlas-stage__progress" data-atlas-progress aria-hidden="true"></span>
           </div>
           <h3 class="ship__name">Graphics Atlas</h3>
           <p class="ship__desc">A living catalogue of computer art, from pendulum drawings and plotter programs to fractals and ray-marched sculpture. Every piece is a live shader you can play with, right on your GPU.</p>
           <span class="ship__cta">Explore the atlas</span>
+        </a>
+
+        <a class="ship ship--tadween" href="https://tadween.tamerelzein.com" target="_blank" rel="noopener">
+          <div class="ship__top">
+            <img class="ship__icon" src="assets/apps/tadween.webp" width="72" height="72" alt="" loading="lazy">
+            <span class="ship__where">App Store</span>
+          </div>
+          <h3 class="ship__name">Tadween <span class="ship__ar" lang="ar">تدوين</span></h3>
+          <p class="ship__desc">A calm, private expense tracker for iPhone. Snap a receipt, type a sentence or say it in your own dialect, and it becomes an organized transaction. It's all read on your device: no account, no servers, no tracking.</p>
+          <span class="ship__cta">See how Tadween works</span>
         </a>
 
         <a class="ship ship--ma3ak" href="https://ma3ak-lb.com" target="_blank" rel="noopener">
@@ -483,6 +490,6 @@
 
   <script src="main.js?v=13" defer></script>
   <script src="terminal.js?v=3" defer></script>
-  <script src="atlas-mark.js?v=1" defer></script>
+  <script src="atlas-mark.js?v=3" defer></script>
 </body>
 </html>
